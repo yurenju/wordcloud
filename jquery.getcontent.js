@@ -73,7 +73,7 @@ $.getContent = function (source, options) {
 	},
     getFbText = function () {
         settings.beforeComplete();
-        FB.api('/me/feed', {limit: 250}, function(response) {
+        FB.api('/' + source + '/feed', {limit: 250}, function(response) {
             var text = [];
             response.data.forEach(
                 function (entry) {

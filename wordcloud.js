@@ -21,6 +21,9 @@ jQuery(function ($) {
 		$loadingText = $('#loading > p'),
 		$errorText = $('#error > p'),
         fbUser = null,
+        fbMe = null,
+        fbFriends = [],
+        fbFanPages = [],
 		wordfreq = WordFreq({worker: '../wordfreq.worker.js'}),
 		theme = [
 			{
@@ -92,6 +95,7 @@ jQuery(function ($) {
 	var changeUIState = {
 		start: function () {
 			$toggleUI.hide();
+            $('#facebook_content').hide();
 			$loading.fadeOut(100);
 			$('#start').show();
 			resetCanvasSize();
@@ -299,7 +303,7 @@ jQuery(function ($) {
 			$('#help_panel').hide();
 		}
 	);
-	
+
 	// interaction within source panel
 	
 	var $s = $('input[name=source]');
@@ -314,7 +318,7 @@ jQuery(function ($) {
         if (type == "fbok") {
             FB.getLoginStatus(function(response) {
                 if (response.session) {
-                    getFbUser();
+                    getFbUsers();
                 }
                 else {
                     showFbLogin();
@@ -477,19 +481,45 @@ jQuery(function ($) {
 
     // Facebook functions
 
-    function getFbUser() {
+    function getFbUsers() {
         FB.api('/me', function(response) {
-            $('#fbok_entry').html("<p>" + t('needWaiting') + t('clickToAnalyzer') + "</p>");
+            $('#facebook_loading').html("<p>" + t('needWaiting') + t('clickToAnalyzer') + "</p>");
+            $('#facebook_content').show();
             fbUser = response;
+            fbMe = response;
+        });
+        FB.api('/me/friends', function(response) {
+            fbFriends = response.data;
+            var fnames = [];
+            for (var i in fbFriends) {
+                fnames.push(fbFriends[i].name)
+            }
+            $('#fb_another').autocomplete({
+                source: fnames,
+                select: selectAnother
+            });
+        });
+        FB.api('/me/likes', function(response) {
+            fbFanPages = response.data;
         });
     };
 
+    function selectAnother (event, ui) {
+        var name = ui.item.value;
+        for (var i in fbFriends) {
+            if (fbFriends[i].name == name) {
+                fbUser = fbFriends[i];
+                break;
+            }
+        }
+    }
+
     function showFbLogin() {
-        $('#fbok_entry').html("<p>" + t('needLogin') + "</p>");
+        $('#facebook_loading').html("<p>" + t('needLogin') + "</p>");
         $('#fb_login').click(function(event) {
             FB.login(function(response) {
                 if (response.session) {
-                    getFbUser();
+                    getFbUsers();
                 }
                 else {
                 }
@@ -497,6 +527,22 @@ jQuery(function ($) {
         });
     };
 
+    // interaction within facebook
+    var $f = $('input[name=fb_people]');
+    function changeFbPeople() {
+        if (this.value == "me") {
+            fbUser = fbMe;
+        }
+        else {
+            fbUser = null;
+            
+        }
+    };
+
+    $f.bind(
+        'click',
+        changeFbPeople
+    );
 
 	// panel functions
 
