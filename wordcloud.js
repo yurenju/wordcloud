@@ -22,8 +22,8 @@ jQuery(function ($) {
 		$errorText = $('#error > p'),
         fbUser = null,
         fbMe = null,
-        fbFriends = [],
-        fbFanPages = [],
+        fbFriends = null,
+        fbFanPages = null,
 		wordfreq = WordFreq({worker: '../wordfreq.worker.js'}),
 		theme = [
 			{
@@ -391,7 +391,7 @@ jQuery(function ($) {
 				break;
                 case 'fbok':
                     if (!fbUser) return false;
-                    window.location.hash = '#facebook:me';
+                    window.location.hash = '#facebook:' + fbUser.id;
                 break;
 			}
 			return false;
@@ -481,35 +481,63 @@ jQuery(function ($) {
 
     // Facebook functions
 
+    $('#fb_another').click(function () {
+        $('input[name=fb_people]:radio').attr('checked', 'checked');
+    });
+
     function getFbUsers() {
         FB.api('/me', function(response) {
-            $('#facebook_loading').html("<p>" + t('needWaiting') + t('clickToAnalyzer') + "</p>");
-            $('#facebook_content').show();
             fbUser = response;
             fbMe = response;
-        });
-        FB.api('/me/friends', function(response) {
-            fbFriends = response.data;
-            var fnames = [];
-            for (var i in fbFriends) {
-                fnames.push(fbFriends[i].name)
-            }
-            $('#fb_another').autocomplete({
-                source: fnames,
-                select: selectAnother
-            });
-        });
-        FB.api('/me/likes', function(response) {
-            fbFanPages = response.data;
+            loadPeople();
         });
     };
 
-    function selectAnother (event, ui) {
+    function loadPeople() {
+        FB.api('/me/friends', function(response) {
+            fbFriends = response.data;
+            setupAutocomplete();
+        });
+        FB.api('/me/likes', function(response) {
+            fbFanPages = response.data;
+            setupAutocomplete();
+        });
+    }
+
+    function setupAutocomplete() {
+        if (fbFriends == null || fbFanPages == null) return;
+        var names = [];
+        for (var i in fbFanPages) {
+            names.push(fbFanPages[i].name)
+        }
+        for (var i in fbFriends) {
+            names.push(fbFriends[i].name)
+        }
+        $('#fb_another').autocomplete({
+            source: names,
+            select: selectAnotherField
+        });
+
+        $('#facebook_loading').html("<p>" + t('needWaiting') + t('clickToAnalyzer') + "</p>");
+        $('#facebook_content').show();
+    }
+
+    function selectAnotherField (event, ui) {
         var name = ui.item.value;
+        getUserByName(name);
+    }
+
+    function getUserByName (name) {
         for (var i in fbFriends) {
             if (fbFriends[i].name == name) {
                 fbUser = fbFriends[i];
-                break;
+                return;
+            }
+        }
+        for (var i in fbFanPages) {
+            if (fbFanPages[i].name == name) {
+                fbUser = fbFanPages[i];
+                return;
             }
         }
     }
@@ -535,7 +563,9 @@ jQuery(function ($) {
         }
         else {
             fbUser = null;
-            
+            if (fbFriends != null && fbFanPages != null) {
+                getUserByName($('#fb_another').val());
+            }
         }
     };
 
