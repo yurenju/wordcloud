@@ -551,7 +551,7 @@ jQuery(function ($) {
                 }
                 else {
                 }
-            }, {perms:'read_stream'});
+            }, {perms:'read_stream,user_likes'});
         });
     };
 
