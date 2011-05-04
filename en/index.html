@@ -4,6 +4,7 @@
 <meta charset=UTF-8>
 <title>HTML5 Word Cloud: Text Analyzer</title>
 <link rel="stylesheet" type="text/css" href="../wordcloud.css" />
+<link rel="stylesheet" type="text/css" href="../jquery-ui-1.8.12.custom.css" />
 </head>
 <body>
 <canvas id="canvas" class="toggleUI"></canvas>
@@ -108,7 +109,17 @@
 		<p>Only public webpages that has been indexed by search engines can be accessed.</p>
 	</div>
     <div id="fbok_entry" class="entry">
-        <p>Loading...</p>
+        <p id="facebook_loading">Loading...</p>
+        <div id="facebook_content">
+            <p>Analyze target</p>
+            <ul>
+              <li><label><input type="radio" name="fb_people" value="me" checked="checked" /> Yourself</label></li>
+              <li>
+                    <label><input type="radio" name="fb_people" value="another" /> Friend or Fan Page</label>
+                    <input type="text" id="fb_another" name="fb_another" />
+                </li>
+            </ul>
+        </div>
     </div>
 	<button type="submit" id="source_panel_finish">Start</button>
 	</form>
@@ -138,6 +149,7 @@
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
 <script type="text/javascript" src="../jquery.wordcloud.js"></script>
 <script type="text/javascript" src="../jquery.getcontent.js"></script>
+<script type="text/javascript" src="../jquery-ui-1.8.12.custom.min.js"></script>
 <script type="text/javascript" src="../worker.js"></script>
 <script type="text/javascript" src="../wordfreq.js"></script>
 <script type="text/javascript" src="../wordcloud.js"></script>
