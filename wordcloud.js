@@ -12,6 +12,7 @@ function t(id) {
 }
 
 var FB_app_id = '';
+var imgur_app_id = '';
 
 jQuery(function ($) {
 	var $c = $('#canvas'),
@@ -631,4 +632,21 @@ jQuery(function ($) {
 			return false;
 		}
 	);
+
+    $('.upload').bind(
+        'click',
+        function () {
+            var base64 = 'base64,';
+            var data = $c[0].toDataURL();
+
+            $.imgurUpload(
+                imgur_app_id,
+                data.substr(data.indexOf(base64)+base64.length),
+                {
+                    title: "test",
+                    caption: "test caption"
+                }
+            );
+        }
+    );
 });
